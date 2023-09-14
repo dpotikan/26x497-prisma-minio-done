@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   const minio = getMinio();
   try {
     const url = await minio.presignedGetObject(
-      "test-minio",
+      process.env.OBJ_BUCKET as string,
       `${username}/${task.fileName}`,
       5 * 60
     );

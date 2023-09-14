@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     const minio = getMinio();
     try {
       const saveMinioResult = await minio.fPutObject(
-        "test-minio",
+        process.env.OBJ_BUCKET as string,
         `${username}/${newFileName}`,
         fileTempPath
       );

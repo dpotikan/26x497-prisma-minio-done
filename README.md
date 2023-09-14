@@ -49,13 +49,13 @@ Instead of running docker commands one-by-one to start each service separately, 
 To start all service containers at once.
 
 ```bash
-docker compose -f docker/docker-compose.yml up -d
+docker compose -f ./docker/docker-compose.yml up -d
 ```
 
 To stop and remove all containers.
 
 ```bash
-docker compose -f docker/docker-compose.yml down
+docker compose -f ./docker/docker-compose.yml down
 ```
 
 ---
@@ -87,12 +87,6 @@ const prisma = new PrismaClient()
 
 See other ways of importing Prisma Client: http://pris.ly/d/importing-client
 
-┌─────────────────────────────────────────────────────────┐
-│  Update available 5.2.0 -> 5.3.0                        │
-│  Run the following to update                            │
-│    npm i --save-dev prisma@latest                       │
-│    npm i @prisma/client@latest                          │
-└─────────────────────────────────────────────────────────┘
 ```
 
 ### Initialize database schema (execute once per database)
@@ -113,6 +107,7 @@ Datasource "db": PostgreSQL database "mytodo" at "localhost:5432"
 Your database is now in sync with your Prisma schema. Done in 390ms
 
 ✔ Generated Prisma Client (v5.2.0) to .\node_modules\@prisma\client in 110ms
+
 ```
 
 After initialize the database, use a Postgres database client to log in as `postgres` user with the password `12345678`. We shoud see the `mytodo` database. Add a few users in the `User` table. We will use these users to test the "Todo App".
@@ -134,4 +129,101 @@ After setup and configure all back-end services (Postgres database server and Mi
 
 ```bash
 npm run dev
+```
+
+---
+
+## Build docker image from `Todo app` project
+
+We need to create a `Dockerfile` at the root of project directory. We use multistages build.
+
+```Dockerfile
+
+# Build stage
+FROM node:18-alpine as BUILD_IMAGE
+
+WORKDIR /app
+COPY package*.json ./
+
+# install dependencies
+RUN npm ci
+COPY . .
+
+# generate Prisma client from schema
+RUN npx prisma generate
+
+# build
+RUN npm run build
+
+# remove dev dependencies
+RUN npm prune --production
+
+
+# Production stage
+FROM node:18-alpine AS PRODUCTION_STAGE
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# copy from build image
+# COPY .env ./
+COPY --from=BUILD_IMAGE /app/package*.json ./package.json
+COPY --from=BUILD_IMAGE /app/node_modules ./node_modules
+COPY --from=BUILD_IMAGE /app/.next ./.next
+COPY --from=BUILD_IMAGE /app/public ./public
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]
+
+```
+
+To build a new image, run the following command.
+
+```bash
+docker build -t <dockerhub-username>/<docker-image-name>:<tag> .
+```
+
+For example.
+
+```bash
+docker build -t potikanond/super-todo .
+```
+
+---
+
+## Create `Todo app` container
+
+When using `docker run ...` command or using `docker-compose` configuration file to create a container of the app, it is necessary to also provide environment variables to the app.
+
+These are the docker environment variables for `Todo app` container:
+
+- `DATABASE_URL`="postgresql://postgres:12345678@localhost:5432/mytodo"
+- `JWT_SECRET`="PRISMA-MINIO-497"
+- `OBJ_STORAGE_ENDPOINT`="localhost"
+- `OBJ_STORAGE_PORT`="9000"
+- `OBJ_ACCESS_KEY`="UVXO9PimYMnW4bQB886b"
+- `OBJ_SECRET_KEY`="2ooqppyZRMMVgZopmgcMUk8wD9jeHenCyA0056QX"
+- `OBJ_BUCKET`="todo-app"
+
+For example, if we have to create a `docker-compose` file for running the app.
+
+```yaml
+version: "3.1"
+
+services:
+  todolist:
+    image: todo-postgres-minio
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      # - DATABASE_URL=postgresql://postgres:12345678@localhost:5432/mytodo
+      - DATABASE_URL=postgresql://postgres:12345678@postgresdb:5432/mytodo
+      - JWT_SECRET=PRISMA-MINIO-497
+      - OBJ_STORAGE_ENDPOINT=nginx
+      - OBJ_STORAGE_PORT=9000
+      - OBJ_ACCESS_KEY=UVXO9PimYMnW4bQB886b
+      - OBJ_SECRET_KEY=2ooqppyZRMMVgZopmgcMUk8wD9jeHenCyA0056QX
+      - OBJ_BUCKET=todo-app
 ```

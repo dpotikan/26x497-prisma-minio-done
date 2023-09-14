@@ -31,7 +31,7 @@ services:
   # -e "MINIO_ROOT_USER=root" -e "MINIO_ROOT_PASSWORD=12345678"
   # quay.io/minio/minio server /data --console-address ":9090"
 
-  # starts 4 docker containers running minio server instances.
+  # starts 2 docker containers running minio server instances.
   # using nginx reverse proxy, load balancing, you can access
   # it through port 9000.
   minio1:
@@ -83,6 +83,21 @@ services:
     depends_on:
       - minio1
       - minio2
+
+  # todolist:
+  #   image: todo-postgres-minio
+  #   restart: always
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     # - DATABASE_URL=postgresql://postgres:12345678@localhost:5432/mytodo
+  #     - DATABASE_URL=postgresql://postgres:12345678@postgresdb:5432/mytodo
+  #     - JWT_SECRET=PRISMA-MINIO-497
+  #     - OBJ_STORAGE_ENDPOINT=nginx
+  #     - OBJ_STORAGE_PORT=9000
+  #     - OBJ_ACCESS_KEY=UVXO9PimYMnW4bQB886b
+  #     - OBJ_SECRET_KEY=2ooqppyZRMMVgZopmgcMUk8wD9jeHenCyA0056QX
+  #     - OBJ_BUCKET=todo-app
 
 ## By default this config uses default local driver,
 ## For custom volumes replace with volume driver configuration.

@@ -42,6 +42,7 @@ export async function POST(req: Request) {
     fileName = newFileName;
 
     const minio = getMinio();
+
     try {
       const saveMinioResult = await minio.fPutObject(
         process.env.OBJ_BUCKET as string,

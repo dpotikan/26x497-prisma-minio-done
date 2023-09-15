@@ -12,6 +12,10 @@ COPY . .
 # generate Prisma client from schema
 RUN npx prisma generate
 
+# some environment variable are required during build
+ENV OBJ_STORAGE_ENDPOINT=localhost
+ENV OBJ_STORAGE_PORT=9000
+
 # build
 RUN npm run build
 
@@ -24,9 +28,6 @@ FROM node:18-alpine AS PRODUCTION_STAGE
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED 1
-
-ENV OBJ_STORAGE_ENDPOINT=localhost
-ENV OBJ_STORAGE_PORT=9000
 
 # copy from build image
 # COPY .env ./

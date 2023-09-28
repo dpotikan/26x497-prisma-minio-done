@@ -39,6 +39,11 @@ export async function GET(req: NextRequest) {
       `${username}/${task.fileName}`,
       5 * 60
     );
+
+    const endpoint = String(process.env.OBJ_STORAGE_ENDPOINT);
+    const get_endpoint = String(process.env.OBJ_STORAGE_GET_ENDPOINT);
+    const new_url = url.replace(endpoint, get_endpoint);
+    console.log("\n" + new_url + "\n");
     return NextResponse.json<GetTaskFileOKResponse>({ ok: true, url });
   } catch {
     return NextResponse.json<GetTaskFileErrorResponse>(

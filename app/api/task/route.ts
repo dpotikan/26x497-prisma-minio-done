@@ -49,7 +49,9 @@ export async function POST(req: Request) {
         `${username}/${newFileName}`,
         fileTempPath
       );
-    } catch {
+    } catch (err) {
+      console.log(err);
+
       return NextResponse.json<AddTaskErrorResponse>(
         {
           ok: false,

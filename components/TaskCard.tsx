@@ -7,16 +7,22 @@ import {
   DeleteTaskErrorResponse,
   DeleteTaskOKResponse,
 } from "@/app/api/task/route";
-import { Button, Group, Paper, Text } from "@mantine/core";
+import { Button, Group, Paper, Text, Modal, Image } from "@mantine/core";
 import { Task } from "@prisma/client";
 import axios from "axios";
-import { FC } from "react";
+import { FC, useState } from "react";
+
+import { useDisclosure } from "@mantine/hooks";
 
 type Props = Pick<Task, "title" | "id" | "fileName"> & {
   refetchTasks: Function;
 };
 
 export const TaskCard: FC<Props> = ({ title, id, fileName, refetchTasks }) => {
+  const [url, setUrl] = useState("");
+  const [opened, setOpened] = useState(false);
+  // const [opened, { open, close }] = useDisclosure(false);
+
   async function callDeleteTask() {
     try {
       axios.delete<{}, DeleteTaskOKResponse, DeleteTaskBody>("/api/task", {
@@ -36,7 +42,10 @@ export const TaskCard: FC<Props> = ({ title, id, fileName, refetchTasks }) => {
       const response = await axios.get<GetTaskFileOKResponse>(
         `/api/task/file?taskId=${id}`
       );
-      window.open(response.data.url);
+
+      console.log(response.data.url);
+      setUrl(response.data.url);
+      setOpened(true);
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
         const data = err.response?.data as GetTaskFileErrorResponse;
@@ -49,6 +58,14 @@ export const TaskCard: FC<Props> = ({ title, id, fileName, refetchTasks }) => {
     <Paper withBorder my="xs" p="md">
       <Group position="apart">
         <Text>{title}</Text>
+        <Modal
+          size="65%"
+          opened={opened}
+          onClose={() => setOpened(false)}
+          title={title + " photo"}
+        >
+          <Image radius="md" src={url} />
+        </Modal>
         <Group>
           {fileName && (
             <Button color="gray" variant="outline" onClick={callGetTaskFile}>

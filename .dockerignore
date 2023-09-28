@@ -11,3 +11,4 @@ LICENSE
 /scripts
 *.log
 .env
+env*

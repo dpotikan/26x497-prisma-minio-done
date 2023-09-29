@@ -13,7 +13,7 @@ version: "3.8"
 
 services:
   dome-todo:
-    image: potikanond/dome-todo
+    image: potikanond/dome-todo-photo
     restart: always
     ports:
       - 3000:3000
@@ -21,18 +21,11 @@ services:
       # - DATABASE_URL=postgresql://postgres:12345678@localhost:5432/mytodo
       - DATABASE_URL=postgresql://postgres:12345678@postgresdb:5432/mytodo
       - JWT_SECRET=PRISMA-MINIO-497
-      - OBJ_STORAGE_ENDPOINT=minio1
-      - OBJ_STORAGE_GET_ENDPOINT=localhost
+      - OBJ_STORAGE_ADDR=${MINIO_ADDR}
       - OBJ_STORAGE_PORT=9000
       - OBJ_ACCESS_KEY=Bd7RcGe3t5Ozf50rCNrQ
       - OBJ_SECRET_KEY=TZCVUMFHifEY76qbYPPRqbU20HQGxwrfoABID4nj
       - OBJ_BUCKET=todo-app
-
-    # resource limits
-    # mem_limit: "1g"             # --memory
-    # mem_reservation: "512m"     # --memory-reservation
-    # cpus: "1"                   # --cpus
-    # cpuset: "2"                 # --cpuset-cpus
 
     # networks:
     #   - custom_network
@@ -45,11 +38,11 @@ services:
 
       resources:
         limits:
-          cpus: "1"
-          memory: 512M
+          cpus: "1" # --cpus
+          memory: 512M # --memory
         reservations:
-          cpus: "0.75"
-          memory: 470M
+          cpus: "0.75" # --cpu-reservation
+          memory: 470M # --memory-reservation
 
 networks:
   default:

@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.8"
 
 services:
   # ------------- create a PostgreSQL container -----------------
@@ -45,10 +45,11 @@ services:
       - MINIO_ROOT_USER=root
       - MINIO_ROOT_PASSWORD=12345678
       # - MINIO_OPTS="--console-address :9001"
-      - MINIO_SERVER_URL=http://localhost:9000
-      - MINIO_BROWSER_REDIRECT_URL=http://localhost:9001
+      - MINIO_SERVER_URL=http://192.168.68.119:9000
+      - MINIO_BROWSER_REDIRECT_URL=http://192.168.68.119:9001
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test:
+        ["CMD", "curl", "-f", "http://192.168.68.119:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3

@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.8"
 
 services:
   # ------------- create a PostgreSQL container -----------------
@@ -45,10 +45,10 @@ services:
       - MINIO_ROOT_USER=root
       - MINIO_ROOT_PASSWORD=12345678
       # - MINIO_OPTS="--console-address :9001"
-      - MINIO_SERVER_URL=http://localhost:9000
-      - MINIO_BROWSER_REDIRECT_URL=http://localhost:9001
+      - MINIO_SERVER_URL=http://${MINIO_ADDR}:9000
+      - MINIO_BROWSER_REDIRECT_URL=http://${MINIO_ADDR}:9001
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://${MINIO_ADDR}:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -67,8 +67,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:12345678@postgresdb:5432/mytodo
       - JWT_SECRET=PRISMA-MINIO-497
-      - OBJ_STORAGE_ENDPOINT=minio1
-      - OBJ_STORAGE_GET_ENDPOINT=minio1
+      - OBJ_STORAGE_ADDR=${MINIO_ADDR}
       - OBJ_STORAGE_PORT=9000
       - OBJ_ACCESS_KEY=Bd7RcGe3t5Ozf50rCNrQ
       - OBJ_SECRET_KEY=TZCVUMFHifEY76qbYPPRqbU20HQGxwrfoABID4nj

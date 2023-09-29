@@ -60,7 +60,7 @@ services:
   # ----- Create Todo app container -------
 
   dome-todo:
-    image: potikanond/dome-todo
+    image: potikanond/dome-todo-photo
     restart: always
     ports:
       - 3000:3000
